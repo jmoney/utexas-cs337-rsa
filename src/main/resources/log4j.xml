@@ -9,18 +9,6 @@
         </layout>
     </appender>
 
-    <!-- Main file appender -->
-    <appender name="StdoutFile" class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="${logdir}/stdout.log"/>
-        <param name="append" value="true"/>
-        <param name="maxFileSize" value="20MB"/>
-        <param name="encoding" value="UTF-8"/>
-        <param name="maxBackupIndex" value="10"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="[%d{MM/dd/yy HH:mm:ss:S}](%t) %-5p - %-26.26c{1} - %m%n"/>
-        </layout>
-    </appender>
-
     <!-- Error log -->
     <appender name="ErrorsFile" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="${logdir}/errors.log"/>

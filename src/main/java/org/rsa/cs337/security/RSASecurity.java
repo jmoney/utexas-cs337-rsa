@@ -12,7 +12,6 @@ import static org.rsa.cs337.utils.RSAUtils.*;
  * This class contains the basic methods for the RSA algorithm
  *
  * @author jmonette
- * Date: 8/10/12
  */
 public class RSASecurity {
 
@@ -26,7 +25,6 @@ public class RSASecurity {
      */
     public static void generateKeys(long p, long q) {
         long e = 0L;
-        long d = 0L;
         long n = p * q;
         long phiOfN = (p - 1) * (q - 1);
 
@@ -39,7 +37,7 @@ public class RSASecurity {
         }
 
         /* Base on the e we picked, calculate d */
-        d = EEAlgorithm(e, phiOfN);
+        long d = EEAlgorithm(e, phiOfN);
 
         /* Assert the RSA rules for e and d */
         assert ((1 <= e) && (e < n));
@@ -62,9 +60,9 @@ public class RSASecurity {
     public static void encrypt(String infile, String keyfile, String outfile) throws IOException {
         /* Input and Output declarations */
         DataOutputStream
-                out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outfile)));
+                outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outfile)));
         DataInputStream
-                in = new DataInputStream(new BufferedInputStream(new FileInputStream(infile)));
+                inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(infile)));
         StringTokenizer
                 keys = new StringTokenizer(new BufferedReader(new FileReader(keyfile)).readLine());
 
@@ -73,20 +71,20 @@ public class RSASecurity {
         long e = Long.parseLong(keys.nextToken());
 
         /* Is there more bytes in the file to encrypt */
-        while (in.available() != 0) {
+        while (inputStream.available() != 0) {
             int data = 0;
             int C = 1;
 
             /* Read in 3 bytes at a time */
             /* Put them in a 4 byte block */
             /* Takes care of case where files will not end in a 0 byte */
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
             data = data << 8;
 
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
             data = data << 8;
 
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
 
             /* RSA can only encrypt data that is < n */
             assert (data < n);
@@ -99,20 +97,20 @@ public class RSASecurity {
             logger.debug("data: " + data);
             logger.debug("C: " + C);
             logger.debug("Unencrypted: " + Arrays.toString(intToByteArray(data)));
-            logger.debug("Encrypted:   " + Arrays.toString(intToByteArray(C)) + "\n");
+            logger.debug("Encrypted:   " + Arrays.toString(intToByteArray(C)));
 
             /* write out data in 4 bytes */
             byte[] output = intToByteArray(C);
-            if (in.available() == 0 && output[1] == 0 && output[2] == 0 && output[3] == 0) {
-                out.write(output, 0, 1);
-            } else if (in.available() == 0 && output[2] == 0 && output[3] == 0) {
-                out.write(output, 0, 2);
-            } else if (in.available() == 0 && output[3] == 0) {
-                out.write(output, 0, 3);
+            if (inputStream.available() == 0 && output[1] == 0 && output[2] == 0 && output[3] == 0) {
+                outputStream.write(output, 0, 1);
+            } else if (inputStream.available() == 0 && output[2] == 0 && output[3] == 0) {
+                outputStream.write(output, 0, 2);
+            } else if (inputStream.available() == 0 && output[3] == 0) {
+                outputStream.write(output, 0, 3);
             } else {
-                out.write(output, 0, 4);
+                outputStream.write(output, 0, 4);
             }
-            out.flush();
+            outputStream.flush();
         }
     }
 
@@ -128,9 +126,9 @@ public class RSASecurity {
     public static void decrypt(String infile, String keyfile, String outfile) throws IOException {
         /* Input and Output declarations */
         DataOutputStream
-                out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outfile)));
+                outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outfile)));
         DataInputStream
-                in = new DataInputStream(new BufferedInputStream(new FileInputStream(infile)));
+                inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(infile)));
         StringTokenizer
                 keys = new StringTokenizer(new BufferedReader(new FileReader(keyfile)).readLine());
 
@@ -140,23 +138,23 @@ public class RSASecurity {
         long d = Long.parseLong(keys.nextToken());
 
         /* Is there more bytes in the file to decrypt */
-        while (in.available() != 0) {
+        while (inputStream.available() != 0) {
             /* Declarations to decrypt the data */
             int data = 0;
             int C = 1;
 
             /* Read in 4 bytes at a time */
             /* Put them in a 4 byte block */
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
             data = data << 8;
 
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
             data = data << 8;
 
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
             data = data << 8;
 
-            if (in.available() != 0) { data += in.readUnsignedByte(); }
+            if (inputStream.available() != 0) { data += inputStream.readUnsignedByte(); }
 
             /* RSA can only decrypt data that is < n */
             assert (data < n);
@@ -169,19 +167,19 @@ public class RSASecurity {
             logger.debug("data: " + data);
             logger.debug("C: " + C);
             logger.debug("Encrypted: " + Arrays.toString(intToByteArray(data)));
-            logger.debug("Decrypted: " + Arrays.toString(intToByteArray(C)) + "\n");
+            logger.debug("Decrypted: " + Arrays.toString(intToByteArray(C)));
 
             /* write out data in 3 bytes */
             /* Takes care of case where a file cannot end in a 0 byte */
             byte[] output = intToByteArray(C);
-            if (in.available() == 0 && output[2] == 0 && output[3] == 0) {
-                out.write(output, 1, 1);
-            } else if (in.available() == 0 && output[3] == 0) {
-                out.write(output, 1, 2);
+            if (inputStream.available() == 0 && output[2] == 0 && output[3] == 0) {
+                outputStream.write(output, 1, 1);
+            } else if (inputStream.available() == 0 && output[3] == 0) {
+                outputStream.write(output, 1, 2);
             } else {
-                out.write(output, 1, 3);
+                outputStream.write(output, 1, 3);
             }
-            out.flush();
+            outputStream.flush();
         }
     }
 }

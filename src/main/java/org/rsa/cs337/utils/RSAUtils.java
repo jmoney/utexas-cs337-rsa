@@ -4,9 +4,14 @@ package org.rsa.cs337.utils;
  * The util file containing some helper methods for the RSA algorithm
  *
  * @author jmonette
- * Date: 8/10/12
  */
 public class RSAUtils {
+
+    /**
+     * Private default constructor which will override the public default constructor. No need for the user to instantiate this class
+     */
+    private RSAUtils() {}
+
     /**
      * FAST EXPONENTIATION MOD ALGORITHM: (data^exponent) mod modulus
      * All calculations are done with the long data type
@@ -14,9 +19,9 @@ public class RSAUtils {
      * cast the result as an int and return the lower 4 bytes.
      * If the higher 4 bytes are not 0, something went wrong.
      *
-     * @param base The base of the equation
+     * @param base     The base of the equation
      * @param exponent The exponent of the equation
-     * @param modulus The number to take the modulus with
+     * @param modulus  The number to take the modulus with
      * @return
      */
     public static int dxmodn(long base, long exponent, long modulus) {
@@ -60,7 +65,6 @@ public class RSAUtils {
      * @return
      */
     public static long EEAlgorithm(long e, long phiOfN) {
-        long ret = 0L;
         long[] uv = {e, phiOfN};
         long[] abcd = {1, 0, 0, 1};
 
@@ -83,10 +87,10 @@ public class RSAUtils {
             abcd[3] = b - (d * q);
         }
 
-        /* a is going to be our d */
-        ret = abcd[0];
+        /* a is going to be our return */
+        long ret = abcd[0];
 
-        /* Fix d according to the rules of RSA */
+        /* Fix the return according to the rules of RSA */
         if (ret > phiOfN) {
             ret -= phiOfN;
         } else if (ret <= 0) {
